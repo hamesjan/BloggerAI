@@ -543,7 +543,7 @@ function ai_cron_agent_generate_post_cb($manual = false) {
 
 
     $topic_prompt = "Give me a trending blog topic about embedded systems.";
-    $topic = ai_cron_agent_call_openai_text($topic_prompt, $err);
+    $topic = ai_cron_agent_call_openai_text($topic_prompt, $err, 1);
     // $topic        = ai_cron_agent_get_option('topic');
     
     $title_p      = "Do Not Use Quotes." . str_replace('{{TOPIC}}', $topic, ai_cron_agent_get_option('title_prompt'));
@@ -556,8 +556,8 @@ function ai_cron_agent_generate_post_cb($manual = false) {
     $author_id    = (int)ai_cron_agent_get_option('author_id');
 
     $title_err = $body_err = null;
-    $title = ai_cron_agent_call_openai_text($title_p, $title_err);
-    $content_html = ai_cron_agent_call_openai_text($body_p, $body_err);
+    $title = ai_cron_agent_call_openai_text($title_p, $title_err, 2);
+    $content_html = ai_cron_agent_call_openai_text($body_p, $body_err, 3);
 
     if (!$title || !$content_html) {
         $detail = $title_err ?: $body_err ?: 'unknown';
@@ -642,17 +642,43 @@ function ai_cron_agent_get_api_key() {
     return ai_cron_agent_get_option('api_key');
 }
 
-function ai_cron_agent_call_openai_text($prompt, &$err = null) {
+function ai_cron_agent_call_openai_text($prompt, &$err = null, $type = 1) {
     $err = null;
 
     $api_key = ai_cron_agent_get_api_key();
     if (!$api_key) { $err = 'Missing API key'; ai_cron_agent_log('Missing API key'); return ''; }
 
     $model = ai_cron_agent_get_option('text_model') ?: 'gpt-4o-mini';
+    switch ($type) {
+        case 1:
+            $system_prompt = "You are a creative research assistant. Your job is to generate a unique, random, and very specific blog topic within the broad field of embedded computing
+                        Constraints:
+                        - Each response should focus on a different *niche* or *industry application*.
+                        - Be concrete, not generic (e.g., 'Low-power MCU design for wearable ECG monitors' is good, 'IoT in healthcare' is too broad).
+                        - Choose a random industry (automotive, aerospace, medical devices, robotics, consumer electronics, industrial automation, etc.).
+                        - Return just ONE topic";
+            break;
+        case 2:
+            $system_prompt = "Return a SEO-optimized, straightforward blog title with no quotes, no html, just the title.";
+            break;
+        case 3:
+$system_prompt = "Write ONLY the blog body in valid HTML for WordPress. 
+                  Rules:
+                    - Do NOT include <html>, <head>, <body>, or <title>.
+                    - Do NOT include a main <h1> title at the top. Start directly with <h3> or <h4> sections.
+                    - Use <h3>, <h4>, <p>, <ul>, <li>, and <strong> tags for structure.
+                    - Return ONLY the HTML snippet for the article body.
+                    Topic: {{TOPIC}}
+                ";
+          break;
+        default:
+            $system_prompt = "You are a helpful writing assistant. Write in clean HTML format.";
+    }
+
     $payload = [
         'model' => $model,
         'messages' => [
-            ['role' => 'system', 'content' => 'You are a helpful writing assistant.'],
+            ['role' => 'system', 'content' => $system_prompt], 
             ['role' => 'user',   'content' => $prompt],
         ],
         'temperature' => 0.7,
