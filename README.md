@@ -1,0 +1,1 @@
+This is a WP plugin for agentic blog posts.
