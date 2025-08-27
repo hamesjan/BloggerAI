@@ -541,8 +541,93 @@ function ai_cron_agent_generate_post_cb($manual = false) {
         return;
     }
 
+    $categories = [
+        // Automotive & Transportation
+        "low-latency CAN bus systems for EV battery management",
+        "functional safety firmware for autonomous driving (ISO 26262)",
+        "real-time ECU design for advanced driver assistance systems (ADAS)",
+        "sensor fusion modules for automotive radar + camera integration",
+        "embedded control of regenerative braking in EVs",
+        "firmware for vehicle-to-everything (V2X) roadside units",
+        "powertrain control modules for hydrogen fuel cell vehicles",
+    
+        // Aerospace & Defense
+        "avionics flight control computers with DO-178C compliance",
+        "radiation-tolerant FPGAs for satellite communication",
+        "fly-by-wire actuator controllers in commercial aircraft",
+        "embedded systems in unmanned aerial vehicles (UAV autopilots)",
+        "realtime firmware for missile guidance and tracking",
+        "low-power telemetry systems for cubesats",
+    
+        // Medical Devices
+        "wearable ECG monitors with ultra-low-power MCUs",
+        "closed-loop insulin pump controllers",
+        "embedded AI for portable ultrasound machines",
+        "wireless pacemaker telemetry systems",
+        "real-time DSP for hearing aids",
+        "firmware for robotic surgical instruments",
+    
+        // Industrial Automation
+        "predictive maintenance sensors on factory motors",
+        "embedded PLC alternatives for smart factories",
+        "firmware for robotic welding controllers",
+        "condition monitoring nodes with vibration sensors",
+        "modbus/TCP embedded gateways for legacy equipment",
+        "real-time motion control for CNC machines",
+    
+        // Robotics
+        "SLAM firmware for indoor warehouse robots",
+        "real-time motor control for robotic arms",
+        "ROS2 microcontroller nodes for edge robotics",
+        "embedded sensor fusion for quadruped robots",
+        "low-latency LIDAR interfaces for AMRs",
+    
+        // Consumer Electronics
+        "embedded DSP for ANC (active noise cancelling) headphones",
+        "firmware for foldable smartphone hinge sensors",
+        "embedded OS for AR smart glasses",
+        "MCU power management in e-ink e-readers",
+        "Wi-Fi 6 IoT chipsets for smart home hubs",
+        "firmware for ultra-low latency gaming mice",
+    
+        // Energy & Power Systems
+        "solar inverter MPPT firmware",
+        "embedded controllers for smart grid substations",
+        "battery management systems for grid-scale storage",
+        "real-time control of wind turbine pitch systems",
+        "low-power embedded design for smart meters",
+    
+        // Marine & Harsh Environments
+        "embedded controllers for underwater ROV thrusters",
+        "low-power sonar signal processing",
+        "firmware for autonomous surface vehicles",
+        "marine navigation embedded displays",
+    
+        // Telecommunications
+        "firmware for 5G mmWave base station units",
+        "embedded network processors in fiber routers",
+        "low-latency firmware for SDR (software-defined radios)",
+        "real-time packet inspection engines in IoT gateways",
+    
+        // Agriculture
+        "embedded soil nutrient sensing nodes",
+        "real-time control firmware for drone crop sprayers",
+        "IoT weather station controllers with LoRaWAN",
+        "autonomous tractor ECU controllers",
+        "embedded systems for precision irrigation valves",
+    
+        // Security & Defense
+        "embedded encryption modules for secure radios",
+        "hardware root-of-trust firmware for IoT devices",
+        "tamper-resistant MCUs in payment terminals",
+    ];
 
-    $topic_prompt = "Give me a trending blog topic about embedded systems.";
+    
+    // Pick one at random
+    $category = $categories[array_rand($categories)];
+
+    $topic_prompt = "Generate ONE ultra-specific, concise, concrete blog topic (single line) in embedded computing for the industry: {$category}.
+                 Avoid generic phrasing. The output should be just the topic text, nothing else.";
     $topic = ai_cron_agent_call_openai_text($topic_prompt, $err, 1);
     // $topic        = ai_cron_agent_get_option('topic');
     
